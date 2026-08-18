@@ -6,7 +6,7 @@ engine) via `pywebview` — not Electron, not a bundled browser. You get
 anti-aliased gauges, glow effects, and smooth animated transitions, while
 staying far lighter than NZXT CAM or L-Connect.
 
-<img src="assets/preview.png" alt="Dashboard Preview" width="100" title="Dashboard Preview">
+<img src="assets/preview.png" alt="Dashboard Preview" width="200" title="Dashboard Preview">
 
 ## 1. Install dependencies
 
