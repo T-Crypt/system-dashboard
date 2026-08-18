@@ -1,0 +1,6 @@
+psutil
+requests
+pystray
+Pillow
+pywebview
+nvidia-ml-py

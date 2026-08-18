@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SysDash</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="panel">
+    <div class="titlebar">
+      <div class="brand"><span class="dot"></span>SYSDASH</div>
+      <div class="winbtns">
+        <button id="btn-min" title="Minimize to tray">—</button>
+        <button id="btn-close" title="Close">✕</button>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <span>CPU / MEMORY</span><span class="section-sub" id="cpu-name">--</span>
+    </div>
+    <div class="gauges">
+      <div class="gauge" id="gauge-cpu">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42"></circle>
+          <circle class="value" cx="50" cy="50" r="42"></circle>
+          <circle class="cap" cx="92" cy="50" r="3"></circle>
+        </svg>
+        <div class="gauge-text">
+          <div class="gauge-value">--</div>
+          <div class="gauge-label">CPU</div>
+        </div>
+      </div>
+
+      <div class="gauge" id="gauge-ram">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42"></circle>
+          <circle class="value" cx="50" cy="50" r="42"></circle>
+          <circle class="cap" cx="92" cy="50" r="3"></circle>
+        </svg>
+        <div class="gauge-text">
+          <div class="gauge-value">--</div>
+          <div class="gauge-label">RAM</div>
+        </div>
+      </div>
+
+      <div class="gauge" id="gauge-temp">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42"></circle>
+          <circle class="value" cx="50" cy="50" r="42"></circle>
+          <circle class="cap" cx="92" cy="50" r="3"></circle>
+        </svg>
+        <div class="gauge-text">
+          <div class="gauge-value">--</div>
+          <div class="gauge-label">TEMP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submeta">
+      <span id="ram-detail">-- / -- GB</span>
+    </div>
+
+    <div class="graph-strip">
+      <svg id="history-graph" viewBox="0 0 280 40" preserveAspectRatio="none">
+        <polyline id="graph-cpu" points=""></polyline>
+        <polyline id="graph-gpu" points=""></polyline>
+      </svg>
+      <div class="graph-legend">
+        <span><i class="dot-cpu"></i>CPU</span>
+        <span><i class="dot-gpu"></i>GPU</span>
+      </div>
+    </div>
+
+    <div class="bars">
+      <div class="bar-row" id="bar-power">
+        <div class="bar-top"><span>CPU POWER</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+      <div class="bar-row" id="bar-disk">
+        <div class="bar-top"><span>DISK USAGE</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+      <div class="bar-row" id="bar-netup">
+        <div class="bar-top"><span>NET ↑</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+      <div class="bar-row" id="bar-netdown">
+        <div class="bar-top"><span>NET ↓</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <span>GPU</span><span class="section-sub" id="gpu-name">--</span>
+    </div>
+    <div class="gauges gauges-gpu">
+      <div class="gauge" id="gauge-gpu">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42"></circle>
+          <circle class="value" cx="50" cy="50" r="42"></circle>
+          <circle class="cap" cx="92" cy="50" r="3"></circle>
+        </svg>
+        <div class="gauge-text">
+          <div class="gauge-value">--</div>
+          <div class="gauge-label">LOAD</div>
+        </div>
+      </div>
+      <div class="gauge" id="gauge-gputemp">
+        <svg viewBox="0 0 100 100">
+          <circle class="track" cx="50" cy="50" r="42"></circle>
+          <circle class="value" cx="50" cy="50" r="42"></circle>
+          <circle class="cap" cx="92" cy="50" r="3"></circle>
+        </svg>
+        <div class="gauge-text">
+          <div class="gauge-value">--</div>
+          <div class="gauge-label">TEMP</div>
+        </div>
+      </div>
+    </div>
+    <div class="bars">
+      <div class="bar-row" id="bar-vram">
+        <div class="bar-top"><span>VRAM</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+      <div class="bar-row" id="bar-gpupower">
+        <div class="bar-top"><span>GPU POWER</span><span class="bar-val">--</span></div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="proc-header">TOP PROCESSES</div>
+    <div class="proc-list" id="proc-list">
+      <!-- rows injected by app.js -->
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+:root {
+  --accent: #3ecf9a;
+  --gpu-color: #c084fc;
+  --warn: #ffb454;
+  --danger: #ff5c5c;
+  --panel-top: #141920;
+  --panel-bottom: #0d1014;
+  --border: rgba(255, 255, 255, 0.09);
+  --track: rgba(255, 255, 255, 0.10);
+  --text-main: #eef2f6;
+  --text-dim: #8b96a3;
+  --radius: 12px;
+  --mono: Consolas, "Cascadia Mono", "Cascadia Code", ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--mono);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The window itself is fully transparent (see main.py) - this panel is the
+   only opaque surface, so its own border-radius is the only corner anyone
+   ever sees. No OS window rectangle left behind it to clip. */
+.panel {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, var(--panel-top) 0%, var(--panel-bottom) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 18px -8px color-mix(in srgb, var(--accent) 30%, transparent),
+    0 10px 28px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------------- Titlebar ---------------- */
+.titlebar {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 12px;
+  flex-shrink: 0;
+  cursor: grab;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.titlebar:active { cursor: grabbing; }
+
+.brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px 1px var(--accent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.winbtns { display: flex; gap: 2px; }
+.winbtns button {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.winbtns button:hover { background: #ffffff14; color: var(--text-main); }
+#btn-close:hover { background: #ff5c5c22; color: #ff6b6b; }
+
+/* ---------------- Gauges ---------------- */
+.gauges {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 6px 0 6px;
+}
+
+.gauge {
+  position: relative;
+  width: 84px;
+  height: 84px;
+}
+.gauge svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+.gauge circle {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: butt;
+}
+.gauge circle.track {
+  stroke: var(--track);
+}
+.gauge circle.value {
+  stroke: var(--accent);
+  stroke-dasharray: 263.9; /* 2*pi*42 */
+  stroke-dashoffset: 263.9;
+  transition: stroke-dashoffset 0.7s cubic-bezier(.4,0,.2,1);
+}
+
+/* Instrument-dial tick marks, drawn once by app.js at boot - the signature
+   detail that reads "analog meter" instead of a flat progress ring. */
+.tick { stroke: var(--track); stroke-width: 1; }
+.tick-major { stroke: var(--text-dim); stroke-width: 1.3; }
+
+/* Needle-style end cap marking the current reading at the tip of the arc. */
+.gauge circle.cap {
+  fill: var(--text-main);
+  stroke: var(--accent);
+  stroke-width: 1.1;
+  transition: cx 0.7s cubic-bezier(.4,0,.2,1), cy 0.7s cubic-bezier(.4,0,.2,1);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+
+.gauge-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.gauge-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.3px;
+  font-variant-numeric: tabular-nums;
+}
+.gauge-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* GPU gauges use a distinct color from CPU/RAM so the two systems read
+   apart at a glance, same as CAM color-codes its sensor groups. */
+.gauges-gpu circle.value { stroke: var(--gpu-color); }
+.gauges-gpu svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gpu-color) 45%, transparent)); }
+.gauges-gpu circle.cap { stroke: var(--gpu-color); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--gpu-color) 70%, transparent)); }
+
+/* Threshold-driven color states (applied via JS as classes on .gauge) -
+   mirrors CAM/L-Connect nudging you toward "this is getting hot" at a glance
+   rather than making you read the number. */
+.gauge.warn circle.value { stroke: var(--warn) !important; }
+.gauge.warn circle.cap { stroke: var(--warn) !important; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--warn) 65%, transparent)) !important; }
+.gauge.warn svg { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--warn) 65%, transparent)) !important; }
+.gauge.danger circle.value { stroke: var(--danger) !important; }
+.gauge.danger circle.cap { stroke: var(--danger) !important; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--danger) 70%, transparent)) !important; }
+.gauge.danger svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--danger) 70%, transparent)) !important; }
+.bar-row.warn .bar-fill { background: var(--warn) !important; box-shadow: 0 0 6px 0 color-mix(in srgb, var(--warn) 60%, transparent) !important; }
+.bar-row.danger .bar-fill { background: var(--danger) !important; box-shadow: 0 0 6px 0 color-mix(in srgb, var(--danger) 60%, transparent) !important; }
+
+/* ---------------- Section headers ---------------- */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 16px 4px 16px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+.section-sub {
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text-dim);
+  opacity: 0.7;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------- Live history graph ---------------- */
+.graph-strip {
+  padding: 2px 16px 6px 16px;
+}
+.graph-strip svg {
+  width: 100%;
+  height: 40px;
+  display: block;
+}
+.graph-strip polyline {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+#graph-cpu { stroke: var(--accent); filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 70%, transparent)); }
+#graph-gpu { stroke: var(--gpu-color); filter: drop-shadow(0 0 2px color-mix(in srgb, var(--gpu-color) 70%, transparent)); }
+.graph-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  margin-top: 2px;
+  font-size: 8px;
+  color: var(--text-dim);
+}
+.graph-legend span { display: flex; align-items: center; gap: 4px; }
+.graph-legend i {
+  width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+}
+.dot-cpu { background: var(--accent); }
+.dot-gpu { background: var(--gpu-color); }
+
+.submeta {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: -2px;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Bars ---------------- */
+.bars {
+  padding: 4px 16px 0 16px;
+}
+.bar-row { margin-bottom: 9px; }
+.bar-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+.bar-top .bar-val {
+  color: var(--text-main);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.bar-track {
+  height: 5px;
+  border-radius: 2px;
+  background: var(--track);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, white 0%), var(--accent));
+  box-shadow: 0 0 6px 0 color-mix(in srgb, var(--accent) 60%, transparent);
+  transition: width 0.7s cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------------- Processes ---------------- */
+.proc-header {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  padding: 10px 16px 4px 16px;
+}
+.proc-list {
+  padding: 0 16px 12px 16px;
+  flex: 1;
+  overflow: hidden;
+}
+.proc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.proc-row:last-child { border-bottom: none; }
+.proc-name {
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+.proc-val {
+  color: var(--accent);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
